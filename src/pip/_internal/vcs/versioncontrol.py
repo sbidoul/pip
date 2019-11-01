@@ -403,19 +403,20 @@ class VersionControl(object):
         """
         return []
 
-    def get_url_rev_options(self, url):
+    @classmethod
+    def get_url_rev_options(cls, url):
         # type: (HiddenText) -> Tuple[HiddenText, RevOptions]
         """
         Return the URL and RevOptions object to use in obtain() and in
         some cases export(), as a tuple (url, rev_options).
         """
-        secret_url, rev, user_pass = self.get_url_rev_and_auth(url.secret)
+        secret_url, rev, user_pass = cls.get_url_rev_and_auth(url.secret)
         username, secret_password = user_pass
         password = None  # type: Optional[HiddenText]
         if secret_password is not None:
             password = hide_value(secret_password)
-        extra_args = self.make_rev_args(username, password)
-        rev_options = self.make_rev_options(rev, extra_args=extra_args)
+        extra_args = cls.make_rev_args(username, password)
+        rev_options = cls.make_rev_options(rev, extra_args=extra_args)
 
         return hide_url(secret_url), rev_options
 

@@ -379,7 +379,7 @@ def test_subversion__get_url_rev_options():
         'svn+https://user:pass@svn.example.com/MyProject@v1.0#egg=MyProject'
     )
     hidden_url = hide_url(secret_url)
-    url, rev_options = Subversion().get_url_rev_options(hidden_url)
+    url, rev_options = Subversion.get_url_rev_options(hidden_url)
     assert url == hide_url('https://svn.example.com/MyProject')
     assert rev_options.rev == 'v1.0'
     assert rev_options.extra_args == (
