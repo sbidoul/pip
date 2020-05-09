@@ -349,13 +349,18 @@ class InstallCommand(RequirementCommand):
                 wheel_cache=wheel_cache,
                 build_options=[],
                 global_options=[],
+                allow_editable=True,
             )
 
             # If we're using PEP 517, we cannot do a direct install
             # so we fail here.
+            # TODO: we also fall through to setup.py develop
+            #       when the back-end does not support build_wheel_for_editable
+            #       and there should be a clear warning for that and error
+            #       message if setup.py is absent
             pep517_build_failure_names = [
                 r.name   # type: ignore
-                for r in build_failures if r.use_pep517
+                for r in build_failures if r.use_pep517 and not r.editable
             ]  # type: List[str]
             if pep517_build_failure_names:
                 raise InstallationError(
@@ -368,8 +373,9 @@ class InstallCommand(RequirementCommand):
             # For now, we just warn about failures building legacy
             # requirements, as we'll fall through to a direct
             # install for those.
+            # TODO: we do not warn for editable installs (setup.py develop)
             for r in build_failures:
-                if not r.use_pep517:
+                if not r.use_pep517 and not r.editable:
                     r.legacy_install_reason = 8368
 
             to_install = resolver.get_installation_order(

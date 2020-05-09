@@ -216,6 +216,21 @@ class Pep517HookCaller(object):
             'metadata_directory': metadata_directory,
         })
 
+    def build_wheel_for_editable(
+            self, wheel_directory, config_settings=None,
+            metadata_directory=None):
+        """Build a wheel for editable install from this project.
+
+        Returns the name of the newly created file.
+        """
+        if metadata_directory is not None:
+            metadata_directory = abspath(metadata_directory)
+        return self._call_hook('build_wheel_for_editable', {
+            'wheel_directory': abspath(wheel_directory),
+            'config_settings': config_settings,
+            'metadata_directory': metadata_directory,
+        })
+
     def get_requires_for_build_sdist(self, config_settings=None):
         """Identify packages required for building a wheel
 

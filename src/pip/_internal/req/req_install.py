@@ -34,7 +34,10 @@ from pip._internal.operations.install.wheel import install_wheel
 from pip._internal.pyproject import load_pyproject_toml, make_pyproject_path
 from pip._internal.req.req_uninstall import UninstallPathSet
 from pip._internal.utils.deprecation import deprecated
-from pip._internal.utils.direct_url_helpers import direct_url_from_link
+from pip._internal.utils.direct_url_helpers import (
+    direct_url_for_editable,
+    direct_url_from_link,
+)
 from pip._internal.utils.hashes import Hashes
 from pip._internal.utils.logging import indent_log
 from pip._internal.utils.misc import (
@@ -788,7 +791,7 @@ class InstallRequirement(object):
         )
 
         global_options = global_options if global_options is not None else []
-        if self.editable:
+        if self.editable and not self.is_wheel:
             install_editable_legacy(
                 install_options,
                 global_options,
@@ -807,7 +810,11 @@ class InstallRequirement(object):
         if self.is_wheel:
             assert self.local_file_path
             direct_url = None
-            if self.original_link:
+            if self.editable:
+                direct_url = direct_url_for_editable(
+                    self.unpacked_source_directory
+                )
+            elif self.original_link:
                 direct_url = direct_url_from_link(
                     self.original_link,
                     self.source_dir,

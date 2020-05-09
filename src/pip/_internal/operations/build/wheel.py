@@ -1,6 +1,8 @@
 import logging
 import os
 
+from pip._vendor.pep517.wrappers import HookMissing
+
 from pip._internal.utils.subprocess import runner_with_spinner_message
 from pip._internal.utils.typing import MYPY_CHECK_RUNNING
 
@@ -18,6 +20,7 @@ def build_wheel_pep517(
     metadata_directory,  # type: str
     build_options,  # type: List[str]
     tempd,  # type: str
+    editable,  # type: bool
 ):
     # type: (...) -> Optional[str]
     """Build one InstallRequirement using the PEP 517 build process.
@@ -37,11 +40,26 @@ def build_wheel_pep517(
             'Building wheel for {} (PEP 517)'.format(name)
         )
         with backend.subprocess_runner(runner):
-            wheel_name = backend.build_wheel(
-                tempd,
-                metadata_directory=metadata_directory,
-            )
+            if editable:
+                try:
+                    wheel_name = backend.build_wheel_for_editable(
+                        tempd,
+                        metadata_directory=metadata_directory,
+                    )
+                except HookMissing:
+                    logger.warning(
+                        'Cannot build wheel for editable %s because the build '
+                        'backend does not have the build_wheel_for_editable '
+                        'hook',
+                        name
+                    )
+                    return None
+            else:
+                wheel_name = backend.build_wheel(
+                    tempd,
+                    metadata_directory=metadata_directory,
+                )
     except Exception:
-        logger.error('Failed building wheel for %s', name)
+        logger.error('Failed building wheel for %s', name, exc_info=True)
         return None
     return os.path.join(tempd, wheel_name)

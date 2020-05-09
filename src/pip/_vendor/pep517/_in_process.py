@@ -205,6 +205,20 @@ def build_wheel(wheel_directory, config_settings, metadata_directory=None):
                                         metadata_directory)
 
 
+def build_wheel_for_editable(
+    wheel_directory, config_settings, metadata_directory=None
+):
+    """Invoke the optional build_wheel_for_editable hook.
+    """
+    backend = _build_backend()
+    try:
+        hook = backend.build_wheel_for_editable
+    except AttributeError:
+        raise HookMissing()
+    else:
+        return hook(wheel_directory, config_settings, metadata_directory)
+
+
 def get_requires_for_build_sdist(config_settings):
     """Invoke the optional get_requires_for_build_wheel hook
 
@@ -242,6 +256,7 @@ HOOK_NAMES = {
     'get_requires_for_build_wheel',
     'prepare_metadata_for_build_wheel',
     'build_wheel',
+    'build_wheel_for_editable',
     'get_requires_for_build_sdist',
     'build_sdist',
 }

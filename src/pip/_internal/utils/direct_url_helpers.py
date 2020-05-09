@@ -9,6 +9,7 @@ from pip._internal.models.direct_url import (
     VcsInfo,
 )
 from pip._internal.utils.typing import MYPY_CHECK_RUNNING
+from pip._internal.utils.urls import path_to_url
 from pip._internal.vcs import vcs
 
 try:
@@ -49,6 +50,14 @@ def direct_url_as_pep440_direct_reference(direct_url, name):
     if fragments:
         requirement += "#" + "&".join(fragments)
     return requirement
+
+
+def direct_url_for_editable(source_dir):
+    # type: (str) -> DirectUrl
+    return DirectUrl(
+        url=path_to_url(source_dir),
+        info=DirInfo(editable=True),
+    )
 
 
 def direct_url_from_link(link, source_dir=None, link_is_in_wheel_cache=False):

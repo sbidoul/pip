@@ -21,7 +21,6 @@ from pip._internal.exceptions import InstallationError
 from pip._internal.models.index import PyPI, TestPyPI
 from pip._internal.models.link import Link
 from pip._internal.models.wheel import Wheel
-from pip._internal.pyproject import make_pyproject_path
 from pip._internal.req.req_install import InstallRequirement
 from pip._internal.utils.deprecation import deprecated
 from pip._internal.utils.filetypes import is_archive_file
@@ -83,19 +82,6 @@ def parse_editable(editable_req):
     url_no_extras, extras = _strip_extras(url)
 
     if os.path.isdir(url_no_extras):
-        if not os.path.exists(os.path.join(url_no_extras, 'setup.py')):
-            msg = (
-                'File "setup.py" not found. Directory cannot be installed '
-                'in editable mode: {}'.format(os.path.abspath(url_no_extras))
-            )
-            pyproject_path = make_pyproject_path(url_no_extras)
-            if os.path.isfile(pyproject_path):
-                msg += (
-                    '\n(A "pyproject.toml" file was found, but editable '
-                    'mode currently requires a setup.py based build.)'
-                )
-            raise InstallationError(msg)
-
         # Treating it as code that has already been checked out
         url_no_extras = path_to_url(url_no_extras)
 

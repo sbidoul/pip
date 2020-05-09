@@ -65,8 +65,12 @@ def _should_build(
     # From this point, this concerns the pip install command only
     # (need_wheel=False).
 
-    if req.editable or not req.source_dir:
+    if not req.source_dir:
         return False
+
+    if req.editable:
+        # we will attempt to build a wheel for editable for pep517 reqs
+        return bool(req.use_pep517)
 
     if not check_binary_allowed(req):
         logger.info(
@@ -165,6 +169,7 @@ def _build_one(
     output_dir,  # type: str
     build_options,  # type: List[str]
     global_options,  # type: List[str]
+    editable,  # type: bool
 ):
     # type: (...) -> Optional[str]
     """Build one wheel.
@@ -183,7 +188,7 @@ def _build_one(
     # Install build deps into temporary directory (PEP 518)
     with req.build_env:
         return _build_one_inside_env(
-            req, output_dir, build_options, global_options
+            req, output_dir, build_options, global_options, editable
         )
 
 
@@ -192,6 +197,7 @@ def _build_one_inside_env(
     output_dir,  # type: str
     build_options,  # type: List[str]
     global_options,  # type: List[str]
+    editable,  # type: bool
 ):
     # type: (...) -> Optional[str]
     with TempDirectory(kind="wheel") as temp_dir:
@@ -204,6 +210,7 @@ def _build_one_inside_env(
                 metadata_directory=req.metadata_directory,
                 build_options=build_options,
                 tempd=temp_dir.path,
+                editable=editable,
             )
         else:
             wheel_path = build_wheel_legacy(
@@ -259,6 +266,7 @@ def build(
     wheel_cache,  # type: WheelCache
     build_options,  # type: List[str]
     global_options,  # type: List[str]
+    allow_editable,  # type: bool
 ):
     # type: (...) -> BuildResult
     """Build wheels.
@@ -280,7 +288,10 @@ def build(
         for req in requirements:
             cache_dir = _get_cache_dir(req, wheel_cache)
             wheel_file = _build_one(
-                req, cache_dir, build_options, global_options
+                req, cache_dir,
+                build_options,
+                global_options,
+                allow_editable and req.editable,
             )
             if wheel_file:
                 # Update the link for this.
