@@ -217,16 +217,20 @@ class Pep517HookCaller(object):
         })
 
     def build_wheel_for_editable(
-            self, wheel_directory, config_settings=None,
+            self, wheel_directory, scheme, config_settings=None,
             metadata_directory=None):
         """Build a wheel for editable install from this project.
 
         Returns the name of the newly created file.
+
+        'scheme' is a dictionary with the following keys:
+        'purelib', 'platlib', 'headers', 'scripts', 'data'.
         """
         if metadata_directory is not None:
             metadata_directory = abspath(metadata_directory)
         return self._call_hook('build_wheel_for_editable', {
             'wheel_directory': abspath(wheel_directory),
+            'scheme': scheme,
             'config_settings': config_settings,
             'metadata_directory': metadata_directory,
         })

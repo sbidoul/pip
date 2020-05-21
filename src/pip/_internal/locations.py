@@ -23,7 +23,9 @@ from pip._internal.utils.virtualenv import running_under_virtualenv
 
 if MYPY_CHECK_RUNNING:
     from distutils.cmd import Command as DistutilsCommand
-    from typing import Dict, List, Optional, Union
+    from typing import Callable, Dict, List, Optional, Union
+
+    GetSchemePredicate = Callable[[str], Scheme]
 
 
 # Application Directories

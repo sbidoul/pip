@@ -169,6 +169,7 @@ class WheelCommand(RequirementCommand):
             build_options=options.build_options or [],
             global_options=options.global_options or [],
             allow_editable=False,
+            get_scheme_for_editable_req=None,
         )
         for req in build_successes:
             assert req.link and req.link.is_wheel

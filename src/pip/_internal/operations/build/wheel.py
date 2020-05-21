@@ -8,7 +8,7 @@ from pip._internal.utils.typing import MYPY_CHECK_RUNNING
 
 if MYPY_CHECK_RUNNING:
     from typing import List, Optional
-
+    from pip._internal.locations import Scheme
     from pip._vendor.pep517.wrappers import Pep517HookCaller
 
 logger = logging.getLogger(__name__)
@@ -21,6 +21,7 @@ def build_wheel_pep517(
     build_options,  # type: List[str]
     tempd,  # type: str
     editable,  # type: bool
+    scheme,  # type: Optional[Scheme]
 ):
     # type: (...) -> Optional[str]
     """Build one InstallRequirement using the PEP 517 build process.
@@ -41,9 +42,11 @@ def build_wheel_pep517(
         )
         with backend.subprocess_runner(runner):
             if editable:
+                assert scheme
                 try:
                     wheel_name = backend.build_wheel_for_editable(
                         tempd,
+                        scheme=scheme.as_dict(),
                         metadata_directory=metadata_directory,
                     )
                 except HookMissing:

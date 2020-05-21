@@ -22,6 +22,7 @@ if MYPY_CHECK_RUNNING:
     from typing import Any, Callable, Iterable, List, Optional, Tuple
 
     from pip._internal.cache import WheelCache
+    from pip._internal.locations import GetSchemePredicate, Scheme
     from pip._internal.req.req_install import InstallRequirement
 
     BinaryAllowedPredicate = Callable[[InstallRequirement], bool]
@@ -170,6 +171,7 @@ def _build_one(
     build_options,  # type: List[str]
     global_options,  # type: List[str]
     editable,  # type: bool
+    scheme,  # type: Optional[Scheme]
 ):
     # type: (...) -> Optional[str]
     """Build one wheel.
@@ -188,7 +190,7 @@ def _build_one(
     # Install build deps into temporary directory (PEP 518)
     with req.build_env:
         return _build_one_inside_env(
-            req, output_dir, build_options, global_options, editable
+            req, output_dir, build_options, global_options, editable, scheme
         )
 
 
@@ -198,6 +200,7 @@ def _build_one_inside_env(
     build_options,  # type: List[str]
     global_options,  # type: List[str]
     editable,  # type: bool
+    scheme,  # type: Optional[Scheme]
 ):
     # type: (...) -> Optional[str]
     with TempDirectory(kind="wheel") as temp_dir:
@@ -211,6 +214,7 @@ def _build_one_inside_env(
                 build_options=build_options,
                 tempd=temp_dir.path,
                 editable=editable,
+                scheme=scheme,
             )
         else:
             wheel_path = build_wheel_legacy(
@@ -267,6 +271,7 @@ def build(
     build_options,  # type: List[str]
     global_options,  # type: List[str]
     allow_editable,  # type: bool
+    get_scheme_for_editable_req,  # type: Optional[GetSchemePredicate]
 ):
     # type: (...) -> BuildResult
     """Build wheels.
@@ -274,6 +279,8 @@ def build(
     :return: The list of InstallRequirement that succeeded to build and
         the list of InstallRequirement that failed to build.
     """
+    assert allow_editable == bool(get_scheme_for_editable_req)
+
     if not requirements:
         return [], []
 
@@ -286,12 +293,17 @@ def build(
     with indent_log():
         build_successes, build_failures = [], []
         for req in requirements:
+            assert req.name
             cache_dir = _get_cache_dir(req, wheel_cache)
+            scheme = None
+            if get_scheme_for_editable_req:
+                scheme = get_scheme_for_editable_req(req.name)
             wheel_file = _build_one(
                 req, cache_dir,
                 build_options,
                 global_options,
                 allow_editable and req.editable,
+                scheme=scheme,
             )
             if wheel_file:
                 # Update the link for this.

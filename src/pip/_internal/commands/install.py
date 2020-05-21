@@ -17,7 +17,7 @@ from pip._internal.cli.cmdoptions import make_target_python
 from pip._internal.cli.req_command import RequirementCommand, with_cleanup
 from pip._internal.cli.status_codes import ERROR, SUCCESS
 from pip._internal.exceptions import CommandError, InstallationError
-from pip._internal.locations import distutils_scheme
+from pip._internal.locations import distutils_scheme, get_scheme
 from pip._internal.operations.check import check_install_conflicts
 from pip._internal.req import install_given_reqs
 from pip._internal.req.req_tracker import get_requirement_tracker
@@ -39,6 +39,7 @@ if MYPY_CHECK_RUNNING:
     from optparse import Values
     from typing import Iterable, List, Optional
 
+    from pip._internal.locations import Scheme
     from pip._internal.models.format_control import FormatControl
     from pip._internal.operations.check import ConflictDetails
     from pip._internal.req.req_install import InstallRequirement
@@ -344,12 +345,24 @@ class InstallCommand(RequirementCommand):
                 )
             ]
 
+            def get_scheme_for_req(name):
+                # type: (str) -> Scheme
+                return get_scheme(
+                    name,
+                    user=options.use_user_site,
+                    home=target_temp_dir_path,
+                    root=options.root_path,
+                    isolated=options.isolated_mode,
+                    prefix=options.prefix_path,
+                )
+
             _, build_failures = build(
                 reqs_to_build,
                 wheel_cache=wheel_cache,
                 build_options=[],
                 global_options=[],
                 allow_editable=True,
+                get_scheme_for_editable_req=get_scheme_for_req,
             )
 
             # If we're using PEP 517, we cannot do a direct install
