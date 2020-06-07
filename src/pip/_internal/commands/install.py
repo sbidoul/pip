@@ -60,6 +60,11 @@ def get_check_binary_allowed(format_control, always_install_via_wheels):
         # type: (InstallRequirement) -> bool
         if req.use_pep517:
             return True
+        if req.build_options:
+            # since build_options is new for the install command, we can safely
+            # say it implies installing via wheels (there is no backward
+            # compatibility issue)
+            return True
         if always_install_via_wheels:
             return True
         canonical_name = canonicalize_name(req.name)
@@ -252,7 +257,13 @@ class InstallCommand(RequirementCommand):
         if options.use_user_site and options.target_dir is not None:
             raise CommandError("Can not combine '--user' and '--target'")
 
+        if options.build_options:
+            # since build_options is new for the install command, we can safely
+            # say it implies installing via wheels (there is no backward
+            # compatibility issue)
+            options.always_install_via_wheels = True
         cmdoptions.check_install_build_global(options)
+
         upgrade_strategy = "to-satisfy-only"
         if options.upgrade:
             upgrade_strategy = options.upgrade_strategy
