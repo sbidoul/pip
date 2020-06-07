@@ -198,6 +198,14 @@ def _build_one_inside_env(
 ):
     # type: (...) -> Optional[str]
     with TempDirectory(kind="wheel") as temp_dir:
+        # Extend the list of global and build options passed on to
+        # the setup.py call with the ones from the requirements file.
+        # Options specified in requirements file override those
+        # specified on the command line, since the last option given
+        # to setup.py is the one that is used.
+        global_options = list(global_options) + req.global_options
+        build_options = list(build_options) + req.build_options
+
         if req.use_pep517:
             if build_options:
                 # PEP 517 does not support --build-options

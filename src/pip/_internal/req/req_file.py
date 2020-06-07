@@ -70,6 +70,7 @@ SUPPORTED_OPTIONS = [
 # options to be passed to requirements
 SUPPORTED_OPTIONS_REQ = [
     cmdoptions.install_options,
+    cmdoptions.build_options,
     cmdoptions.global_options,
     cmdoptions.hash,
 ]  # type: List[Callable[..., optparse.Option]]
