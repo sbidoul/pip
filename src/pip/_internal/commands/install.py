@@ -187,6 +187,7 @@ class InstallCommand(RequirementCommand):
         self.cmd_opts.add_option(cmdoptions.no_use_pep517())
 
         self.cmd_opts.add_option(cmdoptions.install_options())
+        self.cmd_opts.add_option(cmdoptions.build_options())
         self.cmd_opts.add_option(cmdoptions.global_options())
 
         self.cmd_opts.add_option(
@@ -368,8 +369,8 @@ class InstallCommand(RequirementCommand):
             _, build_failures = build(
                 reqs_to_build,
                 wheel_cache=wheel_cache,
-                build_options=[],
-                global_options=[],
+                build_options=options.build_options or [],
+                global_options=options.global_options or [],
             )
 
             # If we're using PEP 517, we cannot do a direct install
