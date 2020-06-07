@@ -54,11 +54,13 @@ if MYPY_CHECK_RUNNING:
 logger = logging.getLogger(__name__)
 
 
-def get_check_binary_allowed(format_control):
-    # type: (FormatControl) -> BinaryAllowedPredicate
+def get_check_binary_allowed(format_control, always_install_via_wheels):
+    # type: (FormatControl, bool) -> BinaryAllowedPredicate
     def check_binary_allowed(req):
         # type: (InstallRequirement) -> bool
         if req.use_pep517:
+            return True
+        if always_install_via_wheels:
             return True
         canonical_name = canonicalize_name(req.name)
         allowed_formats = format_control.get_allowed_formats(canonical_name)
@@ -223,6 +225,18 @@ class InstallCommand(RequirementCommand):
         self.cmd_opts.add_option(cmdoptions.require_hashes())
         self.cmd_opts.add_option(cmdoptions.progress_bar())
 
+        self.cmd_opts.add_option(
+            "--always-install-via-wheels",
+            action="store_true",
+            dest="always_install_via_wheels",
+            default=False,
+            help=(
+                "Always install non PEP 517 requirements via wheels. "
+                "Never use setup.py install. Use setup.py bdist_wheel "
+                "then install the resulting wheel."
+            )
+        )
+
         index_opts = cmdoptions.make_option_group(
             cmdoptions.index_group,
             self.parser,
@@ -340,7 +354,8 @@ class InstallCommand(RequirementCommand):
             )
 
             check_binary_allowed = get_check_binary_allowed(
-                finder.format_control
+                finder.format_control,
+                options.always_install_via_wheels,
             )
 
             reqs_to_build = [
