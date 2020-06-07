@@ -199,11 +199,22 @@ def _build_one_inside_env(
     # type: (...) -> Optional[str]
     with TempDirectory(kind="wheel") as temp_dir:
         if req.use_pep517:
+            if build_options:
+                # PEP 517 does not support --build-options
+                logger.warning(
+                    'Ignoring --build-option for {} '
+                    'using PEP 517.'.format(req.name)
+                )
+            if global_options:
+                # PEP 517 does not support --global-options
+                logger.warning(
+                    'Ignoring --global-option for {} '
+                    'using PEP 517.'.format(req.name)
+                )
             wheel_path = build_wheel_pep517(
                 name=req.name,
                 backend=req.pep517_backend,
                 metadata_directory=req.metadata_directory,
-                build_options=build_options,
                 tempd=temp_dir.path,
             )
         else:
