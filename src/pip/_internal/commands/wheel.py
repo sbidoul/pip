@@ -73,14 +73,7 @@ class WheelCommand(RequirementCommand):
         self.cmd_opts.add_option(cmdoptions.no_deps())
         self.cmd_opts.add_option(cmdoptions.build_dir())
         self.cmd_opts.add_option(cmdoptions.progress_bar())
-
-        self.cmd_opts.add_option(
-            '--global-option',
-            dest='global_options',
-            action='append',
-            metavar='options',
-            help="Extra global options to be supplied to the setup.py "
-            "call before the 'bdist_wheel' command.")
+        self.cmd_opts.add_option(cmdoptions.global_options())
 
         self.cmd_opts.add_option(
             '--pre',

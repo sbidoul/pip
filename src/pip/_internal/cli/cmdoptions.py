@@ -802,7 +802,7 @@ global_options = partial(
     action='append',
     metavar='options',
     help="Extra global options to be supplied to the setup.py "
-         "call before the install command.",
+         "call before the bdist_wheel or install command.",
 )  # type: Callable[..., Option]
 
 no_clean = partial(
