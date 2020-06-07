@@ -88,6 +88,14 @@ def check_install_build_global(options, check_options=None):
             'Disabling all use of wheels due to the use of --build-option '
             '/ --global-option / --install-option.', stacklevel=2,
         )
+    if (
+        getname("install_options")
+        and (getname("build_options") or getname("always_install_via_wheels"))
+    ):
+        logger.warning(
+            "--install-option is ignored when used in combination with "
+            "--build-option or --always-install-via-wheels. "
+        )
 
 
 def check_dist_restriction(options, check_target=False):
