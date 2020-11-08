@@ -411,6 +411,7 @@ def _make_html_page(response, cache_link_parsing=True):
         cache_link_parsing=cache_link_parsing)
 
 
+@lru_cache(maxsize=None)
 def _get_html_page(link, session=None):
     # type: (Link, Optional[PipSession]) -> Optional[HTMLPage]
     if session is None:
