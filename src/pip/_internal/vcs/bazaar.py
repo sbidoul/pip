@@ -4,11 +4,10 @@
 from __future__ import absolute_import
 
 import logging
-import os
 
 from pip._vendor.six.moves.urllib import parse as urllib_parse
 
-from pip._internal.utils.misc import display_path, rmtree
+from pip._internal.utils.misc import display_path
 from pip._internal.utils.subprocess import make_command
 from pip._internal.utils.typing import MYPY_CHECK_RUNNING
 from pip._internal.utils.urls import path_to_url
@@ -43,20 +42,6 @@ class Bazaar(VersionControl):
     @staticmethod
     def get_base_rev_args(rev):
         return ['-r', rev]
-
-    def export(self, location, url):
-        # type: (str, HiddenText) -> None
-        """
-        Export the Bazaar repository at the url to the destination location
-        """
-        # Remove the location to make sure Bazaar can export it correctly
-        if os.path.exists(location):
-            rmtree(location)
-
-        url, rev_options = self.get_url_rev_options(url)
-        self.run_command(
-            make_command('export', location, url, rev_options.to_args())
-        )
 
     def fetch_new(self, dest, url, rev_options):
         # type: (str, HiddenText, RevOptions) -> None

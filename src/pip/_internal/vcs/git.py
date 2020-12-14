@@ -14,7 +14,6 @@ from pip._vendor.six.moves.urllib import request as urllib_request
 from pip._internal.exceptions import BadCommand, SubProcessError
 from pip._internal.utils.misc import display_path, hide_url
 from pip._internal.utils.subprocess import make_command
-from pip._internal.utils.temp_dir import TempDirectory
 from pip._internal.utils.typing import MYPY_CHECK_RUNNING
 from pip._internal.vcs.versioncontrol import (
     RemoteNotFoundError,
@@ -110,19 +109,6 @@ class Git(VersionControl):
             return ref[len('refs/heads/'):]
 
         return None
-
-    def export(self, location, url):
-        # type: (str, HiddenText) -> None
-        """Export the Git repository at the url to the destination location"""
-        if not location.endswith('/'):
-            location = location + '/'
-
-        with TempDirectory(kind="export") as temp_dir:
-            self.unpack(temp_dir.path, url=url)
-            self.run_command(
-                ['checkout-index', '-a', '-f', '--prefix', location],
-                cwd=temp_dir.path
-            )
 
     @classmethod
     def get_revision_sha(cls, dest, rev):
