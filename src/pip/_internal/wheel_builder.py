@@ -80,10 +80,7 @@ def _should_build(
         return True
 
     if not check_binary_allowed(req):
-        logger.info(
-            "Using legacy 'setup.py install' for %s, due to binaries "
-            "being disabled for it.", req.name,
-        )
+        req.legacy_install_reason = 81020  # TODO issue id
         return False
 
     if not is_wheel_installed():
