@@ -10,6 +10,7 @@ from pip._vendor.packaging.tags import interpreter_name, interpreter_version
 from pip._vendor.packaging.utils import canonicalize_name
 
 from pip._internal.exceptions import InvalidWheelFilename
+from pip._internal.models.format_control import FormatControl
 from pip._internal.models.link import Link
 from pip._internal.models.wheel import Wheel
 from pip._internal.utils.temp_dir import TempDirectory, tempdir_kinds
@@ -20,8 +21,6 @@ if MYPY_CHECK_RUNNING:
     from typing import Any, Dict, List, Optional, Set
 
     from pip._vendor.packaging.tags import Tag
-
-    from pip._internal.models.format_control import FormatControl
 
 logger = logging.getLogger(__name__)
 
@@ -280,8 +279,10 @@ class WheelCache(Cache):
     when a certain link is not found in the simple wheel cache first.
     """
 
-    def __init__(self, cache_dir, format_control):
-        # type: (str, FormatControl) -> None
+    def __init__(self, cache_dir, format_control=None):
+        # type: (str, Optional[FormatControl]) -> None
+        if format_control is None:
+            format_control = FormatControl()
         super().__init__(cache_dir, format_control, {'binary'})
         self._wheel_cache = SimpleWheelCache(cache_dir, format_control)
         self._ephem_cache = EphemWheelCache(format_control)

@@ -276,7 +276,10 @@ class InstallCommand(RequirementCommand):
             target_python=target_python,
             ignore_requires_python=options.ignore_requires_python,
         )
-        wheel_cache = WheelCache(options.cache_dir, options.format_control)
+        if "always-install-via-wheel" in options.features_enabled:
+            wheel_cache = WheelCache(options.cache_dir)
+        else:
+            wheel_cache = WheelCache(options.cache_dir, options.format_control)
 
         req_tracker = self.enter_context(get_requirement_tracker())
 
