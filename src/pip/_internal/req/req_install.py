@@ -109,6 +109,7 @@ class InstallRequirement:
         use_pep517=None,  # type: Optional[bool]
         isolated=False,  # type: bool
         install_options=None,  # type: Optional[List[str]]
+        build_options=None,  # type: Optional[List[str]]
         global_options=None,  # type: Optional[List[str]]
         hash_options=None,  # type: Optional[Dict[str, List[str]]]
         constraint=False,  # type: bool
@@ -171,6 +172,7 @@ class InstallRequirement:
         self.install_succeeded = None  # type: Optional[bool]
         # Supplied options
         self.install_options = install_options if install_options else []
+        self.build_options = build_options if build_options else []
         self.global_options = global_options if global_options else []
         self.hash_options = hash_options if hash_options else {}
         # Set to True after successful preparation of this requirement
