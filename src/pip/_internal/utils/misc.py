@@ -9,6 +9,7 @@ import io
 import logging
 import os
 import posixpath
+import re
 import shutil
 import stat
 import sys
@@ -381,16 +382,24 @@ def dist_in_site_packages(dist):
     return dist_location(dist).startswith(normalize_path(site_packages))
 
 
+def egg_link_path_from_sys_path(raw_name: str) -> Optional[str]:
+    """
+    Look for a .egg-link file for project name, by walking sys.path.
+    """
+    egg_link_name = _egg_link_name(raw_name)
+    for path_item in sys.path:
+        egg_link = os.path.join(path_item, egg_link_name)
+        if os.path.isfile(egg_link):
+            return egg_link
+    return None
+
+
 def dist_is_editable(dist):
     # type: (Distribution) -> bool
     """
     Return True if given Distribution is an editable install.
     """
-    for path_item in sys.path:
-        egg_link = os.path.join(path_item, dist.project_name + ".egg-link")
-        if os.path.isfile(egg_link):
-            return True
-    return False
+    return bool(egg_link_path_from_sys_path(dist.project_name))
 
 
 def get_installed_distributions(
@@ -441,8 +450,16 @@ def get_distribution(req_name):
     return cast(_Dist, dist)._dist
 
 
-def egg_link_path(dist):
-    # type: (Distribution) -> Optional[str]
+def _egg_link_name(raw_name: str) -> str:
+    """
+    Convert a Name metadata value to a .egg-link name, by applying
+    the same substitution as pkg_resources's safe_name function.
+    Note: we cannot use canonicalize_name because it has a different logic.
+    """
+    return re.sub("[^A-Za-z0-9.]+", "-", raw_name) + ".egg-link"
+
+
+def egg_link_path_from_location(raw_name: str) -> Optional[str]:
     """
     Return the path for the .egg-link file if it exists, otherwise, None.
 
@@ -470,11 +487,17 @@ def egg_link_path(dist):
             sites.append(user_site)
         sites.append(site_packages)
 
+    egg_link_name = _egg_link_name(raw_name)
     for site in sites:
-        egglink = os.path.join(site, dist.project_name) + ".egg-link"
+        egglink = os.path.join(site, egg_link_name)
         if os.path.isfile(egglink):
             return egglink
     return None
+
+
+def egg_link_path(dist):
+    # type: (Distribution) -> Optional[str]
+    return egg_link_path_from_location(dist.project_name)
 
 
 def dist_location(dist):
