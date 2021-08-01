@@ -394,14 +394,6 @@ def egg_link_path_from_sys_path(raw_name: str) -> Optional[str]:
     return None
 
 
-def dist_is_editable(dist):
-    # type: (Distribution) -> bool
-    """
-    Return True if given Distribution is an editable install.
-    """
-    return bool(egg_link_path_from_sys_path(dist.project_name))
-
-
 def get_installed_distributions(
     local_only=True,  # type: bool
     skip=stdlib_pkgs,  # type: Container[str]
