@@ -10,6 +10,7 @@ from pip._vendor.resolvelib.structs import DirectedGraph
 
 from pip._internal.cache import WheelCache
 from pip._internal.index.package_finder import PackageFinder
+from pip._internal.models.direct_url import VcsInfo
 from pip._internal.operations.prepare import RequirementPreparer
 from pip._internal.req.req_install import InstallRequirement
 from pip._internal.req.req_set import RequirementSet
@@ -120,10 +121,6 @@ class Resolver(BaseResolver):
         if cand_link.is_file:
             return ireq
 
-        # Reinstall if --upgrade is specified.
-        if self.upgrade_strategy != "to-satisfy-only":
-            return ireq
-
         # The PEP 610 direct URL representation of the installed distribution.
         dist_direct_url = installed_dist.direct_url
 
@@ -148,7 +145,17 @@ class Resolver(BaseResolver):
             ireq.original_link_is_in_wheel_cache,
         )
         if cand_direct_url.equivalent(dist_direct_url):
-            return None
+            if self.upgrade_strategy == "to-satisfy-only":
+                # --upgrade was not specified: we don't upgrade since we are satisfied
+                # that the URLs match.
+                return None
+            else:
+                # --upgrade was specified, so we upgrade because the artifact behind the
+                # direct URL may have changed, except for VCS URLs where the commits are
+                # reputed immutable.
+                if isinstance(cand_direct_url.info, VcsInfo):
+                    return None
+                return ireq
 
         return ireq
 
