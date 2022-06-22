@@ -107,10 +107,21 @@ class Resolver(BaseResolver):
             return None
 
         # The incoming candidate was produced only from version requirements.
-        # Reinstall if the installed distribution's version does not match.
         if not direct_url_requested:
-            if installed_dist.version == candidate.version:
-                return None
+            if installed_dist.direct_url or installed_dist.editable:
+                # The installed distribution was installed from a direct URL.
+                # Reinstall if the installed distribution's version does not match.
+                # or if --upgrade was specified.
+                if (
+                    installed_dist.version == candidate.version
+                    and self.upgrade_strategy == "to-satisfy-only"
+                ):
+                    return None
+            else:
+                # The installed distribution was not installed from a direct URL.
+                # Reinstall if the installed distribution's version does not match.
+                if installed_dist.version == candidate.version:
+                    return None
             return ireq
 
         # At this point, the incoming candidate was produced from a direct URL.

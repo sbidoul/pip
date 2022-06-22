@@ -280,6 +280,9 @@ class Factory:
             # the current dependency graph.
             if not specifier.contains(installed_dist.version, prereleases=True):
                 return None
+            if installed_dist.direct_url or installed_dist.editable:
+                # Defer to _get_ireq.
+                return None
             candidate = self._make_candidate_from_dist(
                 dist=installed_dist,
                 extras=extras,
