@@ -136,11 +136,6 @@ class Resolver(BaseResolver):
         if candidate.is_editable:
             return ireq
 
-        # The currently installed distribution is editable, but the incoming
-        # candidate is not. Uninstall the editable one to match.
-        if installed_dist.editable:
-            return ireq
-
         # Now we know both the installed distribution and incoming candidate
         # are based on direct URLs, and neither are editable. Don't reinstall
         # if the direct URLs match. Note that there's a special case for VCS: a
