@@ -234,7 +234,7 @@ class Git(VersionControl):
 
         # fetch the requested revision
         cls.run_command(
-            make_command("fetch", "-q", url, rev_options.to_args()),
+            make_command("fetch", "-q", url, "--", rev_options.to_args()),
             cwd=dest,
         )
         # Change the revision to the SHA of the ref we fetched
@@ -297,6 +297,7 @@ class Git(VersionControl):
                     cmd_args = make_command(
                         "checkout",
                         "-q",
+                        "--",
                         rev_options.to_args(),
                     )
                     self.run_command(cmd_args, cwd=dest)
@@ -326,7 +327,7 @@ class Git(VersionControl):
             make_command("config", "remote.origin.url", url),
             cwd=dest,
         )
-        cmd_args = make_command("checkout", "-q", rev_options.to_args())
+        cmd_args = make_command("checkout", "-q", "--", rev_options.to_args())
         self.run_command(cmd_args, cwd=dest)
 
         self.update_submodules(dest)
@@ -340,7 +341,7 @@ class Git(VersionControl):
             self.run_command(["fetch", "-q"], cwd=dest)
         # Then reset to wanted revision (maybe even origin/master)
         rev_options = self.resolve_revision(dest, url, rev_options)
-        cmd_args = make_command("reset", "--hard", "-q", rev_options.to_args())
+        cmd_args = make_command("reset", "--hard", "-q", "--", rev_options.to_args())
         self.run_command(cmd_args, cwd=dest)
         #: update submodules
         self.update_submodules(dest)

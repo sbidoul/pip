@@ -53,7 +53,7 @@ class Mercurial(VersionControl):
             flags = ("--verbose", "--debug")
         self.run_command(make_command("clone", "--noupdate", *flags, url, dest))
         self.run_command(
-            make_command("update", *flags, rev_options.to_args()),
+            make_command("update", *flags, "--", rev_options.to_args()),
             cwd=dest,
         )
 
@@ -68,12 +68,12 @@ class Mercurial(VersionControl):
         except (OSError, configparser.NoSectionError) as exc:
             logger.warning("Could not switch Mercurial repository to %s: %s", url, exc)
         else:
-            cmd_args = make_command("update", "-q", rev_options.to_args())
+            cmd_args = make_command("update", "-q", "--", rev_options.to_args())
             self.run_command(cmd_args, cwd=dest)
 
     def update(self, dest: str, url: HiddenText, rev_options: RevOptions) -> None:
         self.run_command(["pull", "-q"], cwd=dest)
-        cmd_args = make_command("update", "-q", rev_options.to_args())
+        cmd_args = make_command("update", "-q", "--", rev_options.to_args())
         self.run_command(cmd_args, cwd=dest)
 
     @classmethod

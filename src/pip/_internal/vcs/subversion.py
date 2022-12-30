@@ -296,6 +296,7 @@ class Subversion(VersionControl):
             flag,
             self.get_remote_call_options(),
             rev_options.to_args(),
+            "--",
             url,
             dest,
         )
@@ -306,6 +307,7 @@ class Subversion(VersionControl):
             "switch",
             self.get_remote_call_options(),
             rev_options.to_args(),
+            "--",
             url,
             dest,
         )
@@ -316,6 +318,7 @@ class Subversion(VersionControl):
             "update",
             self.get_remote_call_options(),
             rev_options.to_args(),
+            "--",
             dest,
         )
         self.run_command(cmd_args)
