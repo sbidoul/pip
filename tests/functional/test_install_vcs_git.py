@@ -197,7 +197,7 @@ def test_install_noneditable_git(script: PipTestEnvironment) -> None:
         "@0.1.1#egg=pip-test-package",
     )
     dist_info_folder = script.site_packages / "pip_test_package-0.1.1.dist-info"
-    result.assert_installed("piptestpackage", without_egg_link=True, editable=False)
+    result.assert_installed("piptestpackage", editable=False)
     result.did_create(dist_info_folder)
 
 

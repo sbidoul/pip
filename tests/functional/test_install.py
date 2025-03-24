@@ -36,6 +36,7 @@ from tests.lib import (
     pyversion,
     requirements_file,
 )
+from tests.lib.direct_url import get_created_direct_url
 from tests.lib.local_repos import local_checkout
 from tests.lib.server import (
     file_response,
@@ -569,7 +570,6 @@ def test_basic_install_relative_directory(
     Test installing a requirement using a relative path.
     """
     dist_info_folder = script.site_packages / "fspkg-0.1.dev0.dist-info"
-    egg_link_file = script.site_packages / "FSPkg.egg-link"
     package_folder = script.site_packages / "fspkg"
 
     # Compute relative install path to FSPkg from scratch path.
@@ -593,7 +593,7 @@ def test_basic_install_relative_directory(
     else:
         # Editable install.
         result = script.pip("install", "-e", req_path, cwd=script.scratch_path)
-        result.did_create(egg_link_file)
+        assert get_created_direct_url(result, "fspkg").is_local_editable()
 
 
 def test_install_quiet(script: PipTestEnvironment, data: TestData) -> None:

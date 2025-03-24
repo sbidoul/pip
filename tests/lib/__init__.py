@@ -35,6 +35,7 @@ from pip._internal.models.target_python import TargetPython
 from pip._internal.network.session import PipSession
 from pip._internal.utils.egg_link import _egg_link_names
 
+from tests.lib.direct_url import get_created_direct_url, get_created_direct_url_path
 from tests.lib.venv import VirtualEnvironment
 from tests.lib.wheel import make_wheel
 
@@ -305,7 +306,6 @@ class TestPipResult:
         editable: bool = True,
         with_files: list[str] | None = None,
         without_files: list[str] | None = None,
-        without_egg_link: bool = False,
         use_user_site: bool = False,
         sub_dir: str | None = None,
     ) -> None:
@@ -319,7 +319,6 @@ class TestPipResult:
             if sub_dir:
                 pkg_dir = pkg_dir / sub_dir
         else:
-            without_egg_link = True
             pkg_dir = e.site_packages / pkg_name
 
         if use_user_site:
@@ -333,15 +332,15 @@ class TestPipResult:
                 for egg_link_name in _egg_link_names(pkg_name)
             ]
 
-        egg_link_path_created = self._get_egg_link_path_created(egg_link_paths)
-        if without_egg_link:
-            if egg_link_path_created:
+        if not editable:
+            if get_created_direct_url(self, pkg_name).is_local_editable():
                 raise TestFailure(
-                    f"unexpected egg link file created: {egg_link_path_created!r}\n"
+                    "unexpected editable direct_url.json created: "
+                    f"{get_created_direct_url_path()!r}\n"
                     f"{self}"
                 )
         else:
-            if not egg_link_path_created:
+            if not get_created_direct_url(self, pkg_name).is_local_editable():
                 raise TestFailure(
                     f"expected egg link file missing: {egg_link_paths!r}\n{self}"
                 )
