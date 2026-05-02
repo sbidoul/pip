@@ -675,7 +675,7 @@ def install_req_from_pylock_package(
         ):
             raise InstallationError(
                 f"Only final releases are allowed for package {package.name!r} "
-                f"in {pylock_path_or_url!r}."
+                f"with prerelease version {version!s} in {pylock_path_or_url!r}."
             )
         ireq = InstallRequirement(
             req=Requirement(f"{package.name}=={version}"),

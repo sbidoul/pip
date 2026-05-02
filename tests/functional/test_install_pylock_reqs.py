@@ -233,7 +233,8 @@ def test_install_pylock_reject_prerelease(
         expect_error=True,
     )
     assert (
-        "Only final releases are allowed for package 'pkg-prerelease'" in result.stderr
+        "Only final releases are allowed for package 'pkg-prerelease' "
+        "with prerelease version 1.0a1" in result.stderr
     )
 
 
