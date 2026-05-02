@@ -242,7 +242,7 @@ def test_install_pylock_allow_archive_prerelease(
     script: PipTestEnvironment,
     shared_data: TestData,
 ) -> None:
-    """Archive prereleases (direct URL) are allowed."""
+    """--only-final does not influence direct URL requirements."""
     pylock_path = shared_data.lockfiles.joinpath("pylock.prerelease-archive.toml")
     result = script.pip(
         "install",
@@ -250,6 +250,7 @@ def test_install_pylock_allow_archive_prerelease(
         "--dry-run",
         "-r",
         pylock_path,
+        "--only-final=pkg-prerelease",
         allow_stderr_warning=True,
     )
     assert "experimental" in result.stderr
