@@ -3,14 +3,14 @@ created-by = "pip"
 
 [[packages]]
 name = "build"
-version = "1.4.0"
+version = "1.5.0"
 
 [[packages.wheels]]
-name = "build-1.4.0-py3-none-any.whl"
-url = "https://files.pythonhosted.org/packages/c5/0d/84a4380f930db0010168e0aa7b7a8fed9ba1835a8fbb1472bc6d0201d529/build-1.4.0-py3-none-any.whl"
+name = "build-1.5.0-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/0d/fe/6bea5c9162869c5beba5d9c8abbed835ec85bf1ec1fba05a3822325c45f3/build-1.5.0-py3-none-any.whl"
 
 [packages.wheels.hashes]
-sha256 = "6a07c1b8eb6f2b311b96fcbdbce5dab5fe637ffda0fd83c9cac622e927501596"
+sha256 = "13f3eecb844759ab66efec90ca17639bbf14dc06cb2fdf37a9010322d9c50a6f"
 
 [[packages]]
 name = "flit-core"
@@ -25,14 +25,14 @@ sha256 = "e7a0304069ea895172e3c7bb703292e992c5d1555dd1233ab7b5621b5b69e62c"
 
 [[packages]]
 name = "packaging"
-version = "26.0"
+version = "26.2"
 
 [[packages.wheels]]
-name = "packaging-26.0-py3-none-any.whl"
-url = "https://files.pythonhosted.org/packages/b7/b9/c538f279a4e237a006a2c98387d081e9eb060d203d8ed34467cc0f0b9b53/packaging-26.0-py3-none-any.whl"
+name = "packaging-26.2-py3-none-any.whl"
+url = "https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl"
 
 [packages.wheels.hashes]
-sha256 = "b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529"
+sha256 = "5fc45236b9446107ff2415ce77c807cee2862cb6fac22b8a73826d0693b0980e"
 
 [[packages]]
 name = "pyproject-hooks"
