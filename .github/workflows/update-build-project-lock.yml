@@ -5,6 +5,7 @@ on:
     - cron: 0 5 * * MON # Run every Monday at 05:00
   workflow_dispatch:
     # allow manual runs
+  push:
 
 env:
   FORCE_COLOR: "1"
@@ -15,7 +16,7 @@ concurrency:
 
 jobs:
   update-build-project-lock:
-    if: github.repository_owner == 'pypa'
+    if: github.repository_owner == 'sbidoul'
     runs-on: ubuntu-latest
     permissions:
       contents: write
