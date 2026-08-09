@@ -14,6 +14,8 @@ from functools import partial
 from optparse import Values
 from typing import Any, TypeVar
 
+from pip._vendor.packaging.utils import canonicalize_name
+
 from pip._internal.build_env import (
     BuildEnvironmentInstaller,
     BuildIsolationMode,
@@ -341,13 +343,17 @@ class RequirementCommand(IndexGroupCommand):
             requirements.append(req_to_add)
 
         if options.dependency_groups:
-            for req in parse_dependency_groups(options.dependency_groups):
-                req_to_add = install_req_from_req_string(
-                    req,
-                    isolated=options.isolated_mode,
-                    user_supplied=True,
-                )
+            for req_to_add, locked_link in parse_dependency_groups(
+                options.dependency_groups,
+                session=session,
+                isolated=options.isolated_mode,
+            ):
                 requirements.append(req_to_add)
+                if locked_link:
+                    assert req_to_add.name
+                    finder.add_locked_link(
+                        canonicalize_name(req_to_add.name), locked_link
+                    )
 
         for req in options.editables:
             req_to_add = install_req_from_editable(

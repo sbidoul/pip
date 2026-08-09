@@ -1,21 +1,77 @@
+import logging
 from collections.abc import Iterable, Iterator
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pip._vendor.packaging.dependency_groups import DependencyGroupResolver
 from pip._vendor.packaging.errors import ExceptionGroup
 
 from pip._internal.exceptions import InstallationError
+from pip._internal.models.link import Link
+from pip._internal.req.constructors import (
+    install_req_from_pylock_package,
+    install_req_from_req_string,
+)
+from pip._internal.req.req_install import InstallRequirement
 from pip._internal.utils.compat import tomllib
+from pip._internal.utils.pylock import (
+    is_valid_pylock_filename,
+    select_from_pylock_path_or_url,
+)
+
+logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from pip._internal.network.session import PipSession
 
 
-def parse_dependency_groups(groups: list[tuple[str, str]]) -> list[str]:
+def parse_dependency_groups(
+    groups: list[tuple[str, str]],
+    session: PipSession,
+    isolated: bool,
+) -> list[tuple[InstallRequirement, Link | None]]:
     """
     Parse dependency groups data as provided via the CLI, in a `[path:]group` syntax.
 
     Raises InstallationErrors if anything goes wrong.
     """
-    resolvers = _build_resolvers(path for (path, _) in groups)
-    return list(_resolve_all_groups(resolvers, groups))
+    pyproject_groups = []
+    pylock_groups = []
+    for path, group in groups:
+        if is_valid_pylock_filename(path):
+            pylock_groups.append((path, group))
+        else:
+            pyproject_groups.append((path, group))
+    # get requirements from pyproject groups
+    resolvers = _build_resolvers(path for (path, _) in pyproject_groups)
+    pyproject_reqs = []
+    for req in _resolve_all_groups(resolvers, pyproject_groups):
+        req_to_add = install_req_from_req_string(
+            req, isolated=isolated, user_supplied=True
+        )
+        pyproject_reqs.append((req_to_add, None))
+    # get requirements from pylock groups
+    pylock_reqs = []
+    # TODO: group by identical path
+    for path, group in pylock_groups:
+        logger.warning(
+            "Using pylock.toml as a requirements source "
+            "is an experimental feature. "
+            "It may be removed/changed in a future release "
+            "without prior warning."
+        )
+        for package, package_dist in select_from_pylock_path_or_url(
+            path,
+            session=session,
+            dependency_groups=[group],
+        ):
+            req_to_add, locked_link = install_req_from_pylock_package(
+                package,
+                package_dist,
+                path,
+                user_supplied=True,
+            )
+            pylock_reqs.append((req_to_add, locked_link))
+    return pyproject_reqs + pylock_reqs
 
 
 def _resolve_all_groups(

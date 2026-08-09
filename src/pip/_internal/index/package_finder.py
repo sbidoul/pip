@@ -1099,7 +1099,11 @@ class PackageFinder:
 
     def add_locked_link(self, project_name: NormalizedName, locked_link: Link) -> None:
         assert not self._all_candidates
-        if project_name in self._locked_links:
+        if (
+            project_name in self._locked_links
+            and self._locked_links[project_name]
+            != locked_link  # TODO: check links are comparable
+        ):
             raise InstallationError(
                 f"Multiple locked links provided for {project_name}: "
                 f"{self._locked_links[project_name]} and {locked_link}"

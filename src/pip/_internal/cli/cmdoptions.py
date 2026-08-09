@@ -35,6 +35,7 @@ from pip._internal.models.target_python import TargetPython
 from pip._internal.utils.datetime import parse_iso_datetime
 from pip._internal.utils.hashes import STRONG_HASHES
 from pip._internal.utils.misc import strtobool
+from pip._internal.utils.pylock import is_valid_pylock_filename
 
 logger = logging.getLogger(__name__)
 
@@ -1073,8 +1074,10 @@ def _handle_dependency_group(
         path = "pyproject.toml"
     else:
         # check for 'pyproject.toml' filenames using pathlib
-        if pathlib.PurePath(path).name != "pyproject.toml":
-            msg = "group paths use 'pyproject.toml' filenames"
+        if pathlib.PurePath(
+            path
+        ).name != "pyproject.toml" and not is_valid_pylock_filename(path):
+            msg = "group paths use 'pyproject.toml' or 'pylock.toml' filenames"
             raise_option_error(parser, option=option, msg=msg)
 
     parser.values.dependency_groups.append((path, groupname))
